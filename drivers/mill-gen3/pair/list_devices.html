@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    h3 { margin-top: 24px; }
+    #device-list { list-style: none; padding: 0; }
+    #device-list li { padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px; cursor: pointer; }
+    #device-list li:hover { background: #f0f0f0; }
+    .manual-form { display: flex; gap: 8px; margin-top: 8px; }
+    .manual-form input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    .manual-form button { padding: 8px 16px; background: #e55; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    #status { color: #888; font-size: 13px; margin-top: 8px; }
+    #error { color: red; font-size: 13px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h3>Discovered devices</h3>
+  <div id="status">Scanning 192.168.10.0/24...</div>
+  <ul id="device-list"></ul>
+
+  <h3>Add manually</h3>
+  <div class="manual-form">
+    <input id="manual-ip" type="text" placeholder="IP address (e.g. 192.168.10.111)" />
+    <input id="manual-name" type="text" placeholder="Name (optional)" />
+    <button id="manual-add">Add</button>
+  </div>
+  <div id="error"></div>
+
+  <script>
+    function onShowDevice(device) {
+      const list = document.getElementById('device-list');
+      const li = document.createElement('li');
+      li.textContent = `${device.name} — ${device.settings.ip}`;
+      li.addEventListener('click', () => Homey.emit('select_device', device));
+      list.appendChild(li);
+    }
+
+    Homey.emit('list_devices', null, (err, devices) => {
+      document.getElementById('status').textContent =
+        err ? `Scan failed: ${err}` : `Found ${devices.length} device(s)`;
+      if (devices) devices.forEach(onShowDevice);
+    });
+
+    document.getElementById('manual-add').addEventListener('click', () => {
+      const ip = document.getElementById('manual-ip').value.trim();
+      const name = document.getElementById('manual-name').value.trim();
+      const error = document.getElementById('error');
+      if (!ip) { error.textContent = 'Enter an IP address'; return; }
+      error.textContent = '';
+      Homey.emit('manual_add', { ip, name }, (err, device) => {
+        if (err) { error.textContent = err.message || err; return; }
+        onShowDevice(device);
+      });
+    });
+  </script>
+</body>
+</html>

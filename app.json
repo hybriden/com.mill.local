@@ -1,0 +1,18 @@
+{
+  "id": "com.mill.local",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": ["local"],
+  "name": {
+    "en": "Mill Local"
+  },
+  "description": {
+    "en": "Control Mill Gen3 heaters via local REST API"
+  },
+  "category": ["climate"],
+  "permissions": [],
+  "author": {
+    "name": "hybriden"
+  }
+}
