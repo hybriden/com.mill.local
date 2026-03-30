@@ -33,7 +33,7 @@ class MillGen3Device extends Homey.Device {
       const status = await this._get('/control-status');
       await this.setCapabilityValue('measure_temperature', status.ambient_temperature);
       await this.setCapabilityValue('target_temperature', status.set_temperature);
-      await this.setCapabilityValue('onoff', status.switched_on);
+      await this.setCapabilityValue('onoff', status.operation_mode !== 'OFF');
       if (!this.getAvailable()) await this.setAvailable();
     } catch (err) {
       this.error(`Poll failed: ${err.message}`);
@@ -42,7 +42,7 @@ class MillGen3Device extends Homey.Device {
   }
 
   async _onSetOnOff(value) {
-    await this._post('/set-switch-status', { value });
+    await this._post('/operation-mode', { mode: value ? 'Control individually' : 'Off' });
   }
 
   async _onSetTargetTemperature(value) {
